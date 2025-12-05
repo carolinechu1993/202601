@@ -1,0 +1,1050 @@
+import React, { useState, useEffect } from 'react';
+import { 
+  Calendar, 
+  MapPin, 
+  Utensils, 
+  Car, 
+  Hotel, 
+  ShoppingBag, 
+  CheckSquare, 
+  Info, 
+  Plane, 
+  Camera, 
+  Sun,
+  Moon,
+  Thermometer,
+  Users,
+  Sparkles,
+  ClipboardList,
+  ExternalLink,
+  Store,
+  Tag,
+  Circle,
+  CheckCircle2,
+  Wallet,
+  Receipt,
+  Bus,
+  BedDouble,
+  Coffee,
+  Users2,
+  User,
+  Edit2,
+  Check,
+  Calculator,
+  ChevronDown,
+  ChevronUp,
+  Copy,
+  Map,
+  Share2 // 新增分享圖示
+} from 'lucide-react';
+
+// --- Data (保持原有資料不變) ---
+
+const tripInfo = {
+  title: "2026 北九州6日行",
+  date: "2026/01/13 (二) ~ 01/18 (日)",
+  people: "6 人",
+  concept: "輕鬆 ✦ 溫泉 ✦ 美食",
+  weather: "2-10°C",
+  hotels: [
+    { day: "Day 1", date: "1/13 (二)", city: "嬉野", name: "嬉野八十八 (Ureshino 88)", note: "3間雙人房 / 含早餐", mapQuery: "嬉野八十八" },
+    { day: "Day 2", date: "1/14 (三)", city: "由布院", name: "旅の宿 花景色", note: "1間六人房 / 不含餐", mapQuery: "旅の宿 花景色" },
+    { day: "Day 3", date: "1/15 (四)", city: "由布院", name: "旅の宿 花景色", note: "連泊", mapQuery: "旅の宿 花景色" },
+    { day: "Day 4", date: "1/16 (五)", city: "福岡", name: "LAMP LIGHT BOOKS HOTEL Fukuoka", note: "3間雙人房 / 不含餐", mapQuery: "LAMP LIGHT BOOKS HOTEL fukuoka" },
+    { day: "Day 5", date: "1/17 (六)", city: "福岡", name: "LAMP LIGHT BOOKS HOTEL Fukuoka", note: "連泊", mapQuery: "LAMP LIGHT BOOKS HOTEL fukuoka" },
+  ]
+};
+
+const packingList = [
+  {
+    category: "必備證件與金流",
+    items: [
+      "護照 (檢查有效期限需 6 個月以上)",
+      "台灣證件與大頭照 (以防護照遺失)",
+      "VJW 截圖 (Visit Japan Web QR Code)",
+      "現金 (日幣/台幣)",
+      "信用卡 (建議帶 2 張不同發卡組織)",
+      "行程表紙本/電子檔 (含住宿地址)"
+    ]
+  },
+  {
+    category: "衣物穿搭 (洋蔥式)",
+    items: [
+      "防風大外套/羽絨衣 (Day 2, 4 風大必備)",
+      "發熱衣/褲",
+      "好穿脫的保暖上衣 (毛衣、大學T)",
+      "褲子 (內刷毛或寬鬆褲內搭發熱褲)",
+      "好走的鞋 (防滑，怕結霜)",
+      "圍巾、毛帽、手套 (保暖重要)",
+      "厚襪子",
+      "睡衣",
+      "汙衣袋"
+    ]
+  },
+  {
+    category: "藥品與保健",
+    items: [
+      "常備處方藥 (多帶2-3天份)",
+      "暈車藥 (海獅避震較硬)",
+      "腸胃藥/益生菌",
+      "各式維他命 (B群、C、鋅、魚油)",
+      "痠痛貼布/休足時間",
+      "防磨腳膠帶",
+      "止痛藥、感冒藥",
+      "保濕眼藥水",
+      "口罩"
+    ]
+  },
+  {
+    category: "盥洗與保養",
+    items: [
+      "身體乳液/護手霜",
+      "護唇膏 (隨身攜帶)",
+      "臉部保養品 (精華液、乳霜)",
+      "沐浴乳/洗髮精/潤髮乳 (可自備)",
+      "護髮油",
+      "牙刷牙膏 (Day2 民宿只提供一套)",
+      "毛巾/包髮巾 (Day2 民宿只提供一條)",
+      "防曬乳、化妝品、卸妝品",
+      "髮圈、大夾子或浴帽",
+      "隱形眼鏡與藥水"
+    ]
+  },
+  {
+    category: "電子產品與網卡",
+    items: [
+      "eSIM",
+      "行動電源",
+      "充電線 & 插頭 (台灣雙頭可直用)",
+      "相機、拍立貼"
+    ]
+  },
+  {
+    category: "特殊道具",
+    items: [
+      "保溫袋 (裝阿蘇牛奶、蛋糕、草莓)",
+      "購物袋/環保袋",
+      "夾鏈袋",
+      "暖暖包 (貼式/握式)",
+      "墨鏡",
+      "行李秤",
+      "輕量摺疊雨傘",
+      "保溫瓶",
+      "濕紙巾",
+      "手機掛繩",
+      "隨身小包"
+    ]
+  }
+];
+
+const itinerary = [
+  {
+    day: "Day 1",
+    date: "1/13 (二)",
+    title: "熊本美食 X 嬉野溫泉",
+    transport: "全日包車 (12:30~21:30)",
+    note: "出發前看嬉野暖呼呼祭典時間; 請司機協助預約1/15的B-Speak蛋糕",
+    schedule: [
+      { time: "06:00", icon: Car, title: "機場接駁", desc: "援中與清豐" },
+      { time: "07:00", icon: Plane, title: "抵達機場", desc: "托運行李、安裝E-SIM、確認入境QRcode截圖", mapQuery: "台灣桃園國際機場" },
+      { time: "08:45", icon: Plane, title: "起飛", desc: "虎航 IT-766" },
+      { time: "11:50", icon: MapPin, title: "抵達熊本機場", desc: "辦理入境、領取行李，大廳買7-11咖啡?", mapQuery: "阿蘇熊本機場" },
+      { time: "12:30", icon: Car, title: "包車接機", desc: "入境大廳與包車司機會合" },
+      { time: "13:30", icon: MapPin, title: "抵達熊本車站", desc: "直奔Amu Plaza 7樓美食街-勝烈亭", mapQuery: "熊本駅" },
+      { time: "13:35", icon: Utensils, title: "午餐：勝烈亭", desc: "● 鹿兒島六白黑豚炸豬排\n● 米其林推薦、當地特色\n● 備案：若排隊太久，改吃車站內的「天外天 拉麵」(熊本蒜味豚骨)", mapQuery: "勝烈亭 アミュプラザくまもと店" },
+      { time: "14:30", icon: ShoppingBag, title: "採買：ASO MILK", desc: "● Amu Plaza 1F ASO MILK (アソミルク阿部牧場)\n● 購買阿蘇牛奶/優酪乳，放入自備保溫袋帶到溫泉旅館享用", mapQuery: "ASO MILK Amu Plaza" },
+      { time: "14:45", icon: Car, title: "移動前往嬉野", desc: "吃飽上車補眠，車程約1.5-2小時" },
+      { time: "16:30", icon: Hotel, title: "嬉野八十八 Check-in", desc: "● 黃金休息時間：進房後先去使用大眾池和烤箱（此時人少），或在房間休息、泡房間湯\n● 溫泉可以搭配剛買的牛奶", mapQuery: "嬉野八十八" },
+      { time: "19:00", icon: Utensils, title: "晚餐：宗庵 よこ長", desc: "● 步行5分鐘前往(也可讓司機帶我們去)，可能需要稍微排隊\n● 當地知名湯豆腐創始店，想多吃漢堡排可以只單點湯豆腐，不點定食", mapQuery: "宗庵 よこ長" },
+      { time: "21:00", icon: Utensils, title: "晚餐：Gyumaru", desc: "● 司機開車前往(車程5分鐘)，外帶回住處吃\n● 當地知名牛肉漢堡排，酥皮玉米濃湯也很熱門", mapQuery: "ぎゅう丸 嬉野本店" },
+      { time: "21:30", icon: Moon, title: "回住處", desc: "司機任務結束，回房休息; 大眾池開放到24:00" }
+    ]
+  },
+  {
+    day: "Day 2",
+    date: "1/14 (三)",
+    title: "日田漫遊 X 九重絕景 X 由布院",
+    transport: "全日包車 (11:00~19:30)",
+    note: "告知民宿入住時間晚於18點",
+    schedule: [
+      { time: "06:00", icon: Sun, title: "早晨溫泉", desc: "【自由行程】老傳統，早起的豬兒有溫泉泡; 大眾池06:00開放" },
+      { time: "09:00", icon: Utensils, title: "早餐", desc: "飯店早餐" },
+      { time: "10:30", icon: MapPin, title: "豐玉姫神社", desc: "【自由行程】\n● 退房前有空可以步行3分鐘前往參觀豐玉姫神社\n● 豐玉姫是白鯰魚，更是「美膚之神」", mapQuery: "豐玉姫神社" },
+      { time: "11:00", icon: Car, title: "包車出發", desc: "退房，前往日田，車程約1~1.5小時" },
+      { time: "12:15", icon: Utensils, title: "登記：日田千屋鰻魚飯", desc: "● 現場候位：下車馬上派人登記\n● 利用等待時間逛旁邊的豆田町老街", mapQuery: "日田まぶし千屋" },
+      { time: "12:15", icon: ShoppingBag, title: "逛街：豆田町", desc: "羊羹-最有名的百年老店週三休息，可以再看看別家有沒有想買\n薰長酒造-各類清酒試喝、清酒霜淇淋、純吟釀紅茶蛋糕\n旭饅頭-百年和菓子老店，首選栗子饅頭\n天領雛御殿-百年皇家醬油與味噌老店，醬油霜淇淋也推薦\n小鹿田燒-純手工陶藝，不用機械製成\n足駄屋木屐-日田是三大木屐產地之一，這家有消費才能拍巨無霸木屐", mapQuery: "豆田町商店街" },
+      { time: "13:00", icon: Utensils, title: "午餐：日田千屋鰻魚飯", desc: "● 百年鰻魚老店\n● 鰻魚三吃", mapQuery: "日田まぶし千屋" },
+      { time: "14:50", icon: Camera, title: "快閃：日田車站", desc: "● 拍兵長銅像 + 車站內買限定周邊; 有人會比擬真大小的兵長還矮嗎?\n● 沒興趣者可以同步去Hazebo coffee買咖啡喝 (車程3分鐘)", mapQuery: "日田駅" },
+      { time: "15:00", icon: Car, title: "移動", desc: "前往下一景點，車程1小時" },
+      { time: "16:00", icon: MapPin, title: "景點：九重夢大吊橋", desc: "【前面行程若延遲，要忍痛捨棄】\n● 16:30停止售票，開放到17:00。每人門票¥500\n● 走平路進吊橋，欣賞瀑布與溪谷，停留50分鐘\n● 雨天備案：道之站 湯布院，聽說很好逛很好買的休息站，營業到17點", mapQuery: "九重夢大吊橋" },
+      { time: "18:00", icon: Camera, title: "景點：狹霧台", desc: "眺望由布院盆地的藍調時刻燈火，若提早可趕看夕陽", mapQuery: "狹霧台" },
+      { time: "18:30", icon: ShoppingBag, title: "超市：MaxValue", desc: "買草莓、牛奶、水、零食、酒等，記得準備明天早上吃的", mapQuery: "MaxValue Yufuin" },
+      { time: "19:30", icon: Hotel, title: "抵達民宿", desc: "【花景色 Check-in】 下行李，司機下班", mapQuery: "旅の宿 花景色" },
+      { time: "19:50", icon: Utensils, title: "晚餐：拉麵 侍", desc: "● 營業到21點，建議提早確認排隊情況\n● 除了拉麵，餃子和叉燒飯也相當熱門", mapQuery: "由布院 拉麵 侍" },
+      { time: "21:00", icon: Moon, title: "回到住處", desc: "● 輪流洗澡、早點休息，隔日要早起\n● 討論明天起床時間\n● 有興趣的人還是可以泡湯" }
+    ]
+  },
+  {
+    day: "Day 3",
+    date: "1/15 (四)",
+    title: "夢幻晨霧 X 童話小鎮",
+    transport: "計程車 + 步行",
+    note: "夢幻晨霧需氣溫低水氣足",
+    schedule: [
+      { time: "07:00", icon: Utensils, title: "民宿簡單果腹", desc: "吃昨天買的草莓、牛奶等，或是洗好帶去湖邊吃也可以" },
+      { time: "07:45", icon: Car, title: "民宿出發", desc: "● 叫計程車去金鱗湖\n● 若怕錯過晨霧，需趕07:30抵達更好，但要晃很久到09:00店才會開" },
+      { time: "08:00", icon: Camera, title: "金鱗湖晨霧", desc: "● 散步拍照，參拜水上鳥居\n● 氣溫15度以下且水氣充足才有晨霧", mapQuery: "金鱗湖" },
+      { time: "09:00", icon: Utensils, title: "早餐：Cafe La Ruche", desc: "● 湖邊提早逛完可以08:30-08:45先到門口排隊\n● 賞湖景的露臺位置很搶手，要趕快佔位子再點餐，但比較冷一點", mapQuery: "Cafe La Ruche" },
+      { time: "10:30", icon: ShoppingBag, title: "逛街吃喝", desc: "【逛】花卉村、Miffy、Snoopy 茶屋\n【吃】金賞可樂餅、花麴菊家銅鑼燒、炸雞吉吾、醬油屋試吃、鞠智銅鑼燒、Milch 起司蛋糕", mapQuery: "由布院花卉村" },
+      { time: "13:30", icon: ShoppingBag, title: "B-Speak", desc: "領取預定的蛋糕要趕快回去民宿冰", mapQuery: "B-Speak" },
+      { time: "14:00", icon: MapPin, title: "步行回民宿", desc: "要冰的食物記得冰起來" },
+      { time: "14:30", icon: Hotel, title: "休息 & 泡湯", desc: "輪流午睡、泡湯恢復體力" },
+      { time: "16:30", icon: Users, title: "派人登記", desc: "派人先走去 「由布釜飯 心 (站前店)」 現場登記候位", mapQuery: "由布釜飯 心 站前店" },
+      { time: "17:00", icon: Utensils, title: "晚餐：由布釜飯 心", desc: "● 超人氣排隊名店\n● 豐後牛、鰻魚、地雞釜飯", mapQuery: "由布釜飯 心 站前店" },
+      { time: "18:30", icon: Moon, title: "散步回民宿", desc: "● 結束行程，可以泡湯、聊天、打牌、喝酒、整理行李，但要早睡，隔日要早起\n● 討論明天收尾行程偏好" }
+    ]
+  },
+  {
+    day: "Day 4",
+    date: "1/16 (五)",
+    title: "動物公園 X 系島海景",
+    transport: "全日包車 (07:30~17:30)",
+    note: "可請飯店協助預約明天的Full Full明太子麵包，有人要帶回台灣嗎?",
+    schedule: [
+      { time: "07:30", icon: Car, title: "準時出發", desc: "● 還想泡湯的自己早起\n● 退房、行李全上車\n● 夠早起自行去附近Lawson買咖啡，不然請司機開車去超商買咖啡\n● 盡快出發" },
+      { time: "08:30", icon: MapPin, title: "抵達動物園門口", desc: "● 九州自然動物公園門口排隊\n● 早餐時間： 在車上享用昨晚買的 B-Speak 蛋糕捲，配咖啡，悠閒等待開門", mapQuery: "九州自然動物公園" },
+      { time: "09:30", icon: Camera, title: "九州自然動物公園", desc: "● 首選： 搶購最早班次的叢林巴士，體驗餵食獅子/老虎，再考慮要不要「自駕進場」\n● 備案： 若買到比較晚的班次，先「自駕進場」，也可付費逛貓咪區\n● 「自駕進場」需要負擔司機門票 ¥2600\n● 叢林巴士一趟約60分鐘", mapQuery: "九州自然動物公園" },
+      { time: "11:30", icon: Car, title: "離開動物園", desc: "前往系島，車程約 2 小時" },
+      { time: "13:30", icon: Utensils, title: "午餐：系島牡蠣小屋", desc: "● 現烤帶殼牡蠣、扇貝、大蝦、烏賊，可以問司機有沒有推薦哪一家\n● 冬季限定美食", mapQuery: "糸島 牡蠣小屋" },
+      { time: "13:30", icon: ShoppingBag, title: "點心 : 鹽之花布丁", desc: "● 有多的時間才去，沒有就捨棄\n● 當地著名甜點，有可能提早售罄，可以請司機先致電詢問", mapQuery: "Mataichi no Shio (Salt pudding)" },
+      { time: "14:30", icon: Camera, title: "景點：系島 夫婦岩", desc: "矗立海中的白色鳥居與夫婦岩", mapQuery: "桜井二見ヶ浦 夫婦岩" },
+      { time: "15:20", icon: Car, title: "回程前往天神", desc: "車程45分鐘" },
+      { time: "16:10", icon: Hotel, title: "抵達飯店: LAMP LIGHT", desc: "卸下行李寄櫃台", mapQuery: "LAMP LIGHT BOOKS HOTEL fukuoka" },
+      { time: "16:20", icon: Car, title: "回程前往太宰府", desc: "車程40分鐘，但可能遇塞車" },
+      { time: "17:00", icon: MapPin, title: "太宰府天滿宮", desc: "● 許多店家17:30關門，請司機帶我們從商店街那裏進入，趕快買梅枝餅吃\n● 司機下班", mapQuery: "太宰府天滿宮" },
+      { time: "18:00", icon: Car, title: "前往晚餐地", desc: "搭乘西鐵，車程約35分鐘" },
+      { time: "19:30", icon: Utensils, title: "晚餐：肉いち 薬院店", desc: "**看訂位**", mapQuery: "肉いち 薬院店" }
+    ]
+  },
+  {
+    day: "Day 5",
+    date: "1/17 (六)",
+    title: "OUTLET 購物日",
+    transport: "西鐵電車 + 計程車 + 巴士",
+    note: "預約Outlet直達車(一個月前)、預約晚餐(一月開放)",
+    schedule: [
+      { time: "08:30", icon: Utensils, title: "早餐", desc: "● 【已預約 8:30 ，只能用餐60分鐘】Sabataro : 現煮土鍋飯，全預約制，24小時前未取消會扣款\n● 藍瓶咖啡 : 吃飽後順路去買咖啡", mapQuery: "Sabataro" },
+      { time: "09:30", icon: Car, title: "去 Outlet", desc: "10:05 直達車 (西鐵天神高速巴士站4號乘車處)", mapQuery: "Nishitetsu Tenjin Expressway Bus Terminal" },
+      { time: "11:00", icon: ShoppingBag, title: "鳥栖OUTLETS", desc: "● 先去 Information Center 領取外國人專屬優惠券\n● 購物\n● 午餐選擇推薦: 光瀨雞、極位屋牛排、麵屋兼虎 (評價都普通，碰運氣)", mapQuery: "Tosu Premium Outlets" },
+      { time: "16:00", icon: Car, title: "回程", desc: "16:30 直達車" },
+      { time: "17:00", icon: Utensils, title: "點心 ：鈴懸 大丸福岡天神店", desc: "草莓大福; 若東西很多，可以有人先回住處，有人去買", mapQuery: "鈴懸 大丸福岡天神店" },
+      { time: "17:30", icon: ShoppingBag, title: "繼續逛街", desc: "● 想繼續逛的可以先把住處附近街邊店逛完，包含BAPE、NB等\n● 不想逛的可以回住處休息等吃晚餐" },
+      { time: "19:30", icon: Utensils, title: "晚餐：串燒 八兵衛", desc: "【 需預約 】 福岡必吃雞皮串燒。\n● 必點: 雞皮串燒、豬五花串燒、碗豆泥炸串、芝麻鯖魚/紅甘", mapQuery: "焼とりの八兵衛" }
+    ]
+  },
+  {
+    day: "Day 6",
+    date: "1/18 (日)",
+    title: "天神商圈 X 溫暖的家",
+    transport: "計程車",
+    note: "最後衝刺",
+    schedule: [
+      { time: "09:30", icon: Car, title: "出門", desc: "櫃台寄行李、退房、叫計程車" },
+      { time: "10:00", icon: Utensils, title: "早餐", desc: "Full full 明太子法國麵包內用，同一家或附近買咖啡", mapQuery: "Full Full Tenjin" },
+      { time: "10:30", icon: ShoppingBag, title: "分組買買買", desc: "● 雜貨組: Mina、天神地下街\n● 潮牌組: Parco、各家百貨公司\n● 累累組: 隨便亂逛、咖啡廳休息", mapQuery: "Mina Tenjin" },
+      { time: "14:00", icon: Utensils, title: "午餐：ShinShin拉麵", desc: "Parco店有機會不用排隊", mapQuery: "ShinShin Ramen Parco" },
+      { time: "15:00", icon: ShoppingBag, title: "一起買買買", desc: "藥妝及其他共同有需要採買的店，例如Big Camera", mapQuery: "Bic Camera Tenjin" },
+      { time: "16:00", icon: Hotel, title: "回住處", desc: "● 收拾行李後叫計程車前往機場 \n● 最晚17:00上計程車" },
+      { time: "17:00", icon: Plane, title: "抵達機場", desc: "逛免稅店", mapQuery: "Fukuoka Airport" },
+      { time: "19:55", icon: Plane, title: "回程", desc: "起飛回台灣" }
+    ]
+  }
+];
+
+// Strictly following provided CSV data order and content
+const outletData = [
+  { brand: "Asics", shopNo: "1240", refund: "V", mapQuery: "Asics Tosu Premium Outlets" },
+  { brand: "Beams", shopNo: "920", refund: "V", mapQuery: "Beams Tosu Premium Outlets" },
+  { brand: "Brooks Brothers", shopNo: "2220", refund: "V", mapQuery: "Brooks Brothers Tosu Premium Outlets" },
+  { brand: "Calvin Klein", shopNo: "345", refund: "V", mapQuery: "Calvin Klein Tosu Premium Outlets" },
+  { brand: "Columbia", shopNo: "1620", refund: "V", mapQuery: "Columbia Tosu Premium Outlets" },
+  { brand: "Earth Music&Ecology", shopNo: "1630b", refund: "", mapQuery: "Earth Music&Ecology Tosu Premium Outlets" },
+  { brand: "Freak's Store", shopNo: "440", refund: "V", mapQuery: "Freak's Store Tosu Premium Outlets" },
+  { brand: "Furla", shopNo: "550", refund: "V", mapQuery: "Furla Tosu Premium Outlets" },
+  { brand: "Gelato Pique", shopNo: "420b", refund: "V", mapQuery: "Gelato Pique Tosu Premium Outlets" },
+  { brand: "Munsingwear", shopNo: "1305", refund: "V", mapQuery: "Munsingwear Tosu Premium Outlets" },
+  { brand: "New Balance", shopNo: "530", refund: "V", mapQuery: "New Balance Tosu Premium Outlets" },
+  { brand: "Nike", shopNo: "1810", refund: "", mapQuery: "Nike Tosu Premium Outlets" },
+  { brand: "Niko And…", shopNo: "835", refund: "V", mapQuery: "Niko And… Tosu Premium Outlets" },
+  { brand: "Onitsuka Tiger", shopNo: "2200", refund: "V", mapQuery: "Onitsuka Tiger Tosu Premium Outlets" },
+  { brand: "Polo Ralph Lauren", shopNo: "1000", refund: "V", mapQuery: "Polo Ralph Lauren Tosu Premium Outlets" },
+  { brand: "Puma", shopNo: "1210", refund: "V", mapQuery: "Puma Tosu Premium Outlets" },
+  { brand: "Refa", shopNo: "600", refund: "V", mapQuery: "Refa Tosu Premium Outlets" },
+  { brand: "Samsonite", shopNo: "830", refund: "V", mapQuery: "Samsonite Tosu Premium Outlets" },
+  { brand: "Snidel", shopNo: "420a", refund: "V", mapQuery: "Snidel Tosu Premium Outlets" },
+  { brand: "T-fal", shopNo: "1125", refund: "", mapQuery: "T-fal Tosu Premium Outlets" },
+  { brand: "The Cosmetics Company Store", shopNo: "2110", refund: "V", mapQuery: "The Cosmetics Company Store Tosu Premium Outlets" },
+  { brand: "The North Face", shopNo: "1100b", refund: "V", mapQuery: "The North Face Tosu Premium Outlets" },
+  { brand: "Tommy Hilfiger", shopNo: "1700", refund: "V", mapQuery: "Tommy Hilfiger Tosu Premium Outlets" },
+  { brand: "Triumph", shopNo: "1910", refund: "V", mapQuery: "Triumph Tosu Premium Outlets" },
+  { brand: "UGG", shopNo: "620", refund: "V", mapQuery: "UGG Tosu Premium Outlets" },
+  { brand: "Wacoal", shopNo: "1220", refund: "V", mapQuery: "Wacoal Tosu Premium Outlets" },
+  { brand: "Zwilling J.A. Henckels", shopNo: "1230b", refund: "V", mapQuery: "Zwilling J.A. Henckels Tosu Premium Outlets" },
+  { brand: "麵屋兼虎", shopNo: "660", refund: "", mapQuery: "Menya Kanetora Tosu Premium Outlets", isFood: true },
+  { brand: "光瀨雞", shopNo: "655", refund: "", mapQuery: "Mitsuse Dori Tosu Premium Outlets", isFood: true },
+  { brand: "極味屋", shopNo: "680", refund: "", mapQuery: "Kiwamiya Tosu Premium Outlets", isFood: true }
+];
+
+const tenjinData = [
+  { loc: "Mina", brand: "3COINS", detail: "B1", note: "超大型店，百圓雜貨升級版 九州最大旗艦店", mapQuery: "3COINS+plus mina tenjin" },
+  { loc: "Mina", brand: "Uniqlo", detail: "1-2F", note: "", mapQuery: "UNIQLO Mina Tenjin" },
+  { loc: "Mina", brand: "GU", detail: "3F", note: "九州最大店鋪", mapQuery: "GU Mina Tenjin" },
+  { loc: "Mina", brand: "LOFT", detail: "4F", note: "文具雜貨", mapQuery: "Tenjin Loft" },
+  { loc: "地下街一番", brand: "NATURAL KITCHEN", detail: "近Mina", note: "", mapQuery: "Natural Kitchen Tenjin Underground" },
+  { loc: "地下街二番", brand: "salut!", detail: "", note: "百元商店", mapQuery: "salut! Tenjin Underground" },
+  { loc: "PARCO本館", brand: "Shin Shin", detail: "B1", note: "集合預定地", mapQuery: "ShinShin Ramen Parco", isFood: true },
+  { loc: "PARCO本館", brand: "THE天神-努努雞", detail: "B1", note: "冷炸雞，適合帶去機場/飛機上吃", mapQuery: "THE TENJIN Fukuoka Parco", isFood: true },
+  { loc: "PARCO本館", brand: "GELATO PIQUE", detail: "1F", note: "一般店與限定店", mapQuery: "Gelato Pique Fukuoka Parco" },
+  { loc: "PARCO本館", brand: "Onitsuka Tiger", detail: "1F", note: "快閃店", mapQuery: "Onitsuka Tiger Fukuoka Parco" },
+  { loc: "PARCO本館", brand: "SNIDEL", detail: "2F", note: "", mapQuery: "SNIDEL Fukuoka Parco" },
+  { loc: "PARCO本館", brand: "Onitsuka Tiger", detail: "3F", note: "", mapQuery: "Onitsuka Tiger Fukuoka Parco" },
+  { loc: "PARCO本館", brand: "Peach John", detail: "4F", note: "", mapQuery: "Peach John Fukuoka Parco" },
+  { loc: "PARCO本館", brand: "蠟筆小新", detail: "7F", note: "", mapQuery: "Crayon Shin-chan Official Shop Fukuoka Parco" },
+  { loc: "PARCO本館", brand: "航海王", detail: "7F", note: "", mapQuery: "ONE PIECE MUGIWARA STORE Fukuoka Parco" },
+  { loc: "PARCO本館", brand: "扭蛋店", detail: "7F", note: "", mapQuery: "Gashapon Fukuoka Parco" },
+  { loc: "PARCO本館", brand: "動漫店", detail: "8F", note: "", mapQuery: "Fukuoka Parco 8F" },
+  { loc: "PARCO新館", brand: "Beams", detail: "1-2F", note: "", mapQuery: "BEAMS Fukuoka Parco" },
+  { loc: "PARCO新館", brand: "Freak's Store", detail: "4F", note: "", mapQuery: "Freak's Store Fukuoka Parco" },
+  { loc: "地下街三番", brand: "Sense of Place", detail: "近Parco", note: "", mapQuery: "SENSE OF PLACE by URBAN RESEARCH Tenjin Underground" },
+  { loc: "地下街四番", brand: "BAKE CHEESE TART", detail: "", note: "起司塔", mapQuery: "BAKE CHEESE TART Tenjin Underground", isFood: true },
+  { loc: "地下街四番", brand: "RINGO", detail: "", note: "蘋果派", mapQuery: "RINGO Tenjin Underground", isFood: true },
+  { loc: "岩田屋新館", brand: "鈴懸", detail: "B2", note: "草莓大福", mapQuery: "Suzukake Iwataya", isFood: true },
+  { loc: "岩田屋新館", brand: "Catier", detail: "1F", note: "", mapQuery: "Cartier Iwataya" },
+  { loc: "岩田屋新館", brand: "Bulgari", detail: "1F", note: "", mapQuery: "Bulgari Iwataya" },
+  { loc: "岩田屋本館", brand: "Descente Golf", detail: "6F", note: "該樓還有多家高爾夫球店", mapQuery: "Descente Golf Iwataya" },
+  { loc: "地下街七番", brand: "PRESS BUTTER SAND", detail: "", note: "福岡限定甘王草莓口味", mapQuery: "PRESS BUTTER SAND Tenjin Underground", isFood: true },
+  { loc: "大丸本館", brand: "茅乃舍", detail: "B2", note: "調味料、高湯", mapQuery: "Kayanoya Daimaru Fukuoka Tenjin", isFood: true },
+  { loc: "大丸本館", brand: "如水庵", detail: "B2", note: "百年和菓子店，招牌筑紫葛餅", mapQuery: "Josuian Daimaru Fukuoka Tenjin", isFood: true },
+  { loc: "大丸本館", brand: "鈴懸", detail: "B2", note: "草莓大福", mapQuery: "Suzukake Daimaru Fukuoka Tenjin", isFood: true },
+  { loc: "大丸本館", brand: "明月堂", detail: "B2", note: "博多通饅頭", mapQuery: "Meigetsudo Daimaru Fukuoka Tenjin", isFood: true },
+  { loc: "大丸本館", brand: "Asics", detail: "B1", note: "", mapQuery: "Asics Daimaru Fukuoka Tenjin" },
+  { loc: "大丸本館", brand: "New Balance", detail: "B1", note: "", mapQuery: "New Balance Daimaru Fukuoka Tenjin" },
+  { loc: "大丸本館", brand: "Munsingwear", detail: "5F", note: "", mapQuery: "Munsingwear Daimaru Fukuoka Tenjin" },
+  { loc: "大丸本館", brand: "松榮堂", detail: "7F", note: "線香", mapQuery: "Shoyeido Daimaru Fukuoka Tenjin" },
+  { loc: "大丸東館", brand: "MUJI", detail: "B1", note: "", mapQuery: "MUJI Daimaru Fukuoka Tenjin" },
+  { loc: "大丸東館", brand: "各類錶店", detail: "4F", note: "", mapQuery: "Daimaru Fukuoka Tenjin Watch" },
+  { loc: "路邊", brand: "I'm donut?", detail: "", note: "甜甜圈", mapQuery: "I'm donut? Fukuoka Tenjin", isFood: true },
+  { loc: "地下街十二番", brand: "BOUL'ANGE", detail: "", note: "可頌", mapQuery: "BOUL'ANGE Tenjin Underground", isFood: true },
+  { loc: "路邊(近住處)", brand: "THE NORTH FACE", detail: "", note: "較多紫標與限定款", mapQuery: "THE NORTH FACE Fukuoka" },
+  { loc: "路邊(近住處)", brand: "HUMAN MADE", detail: "", note: "", mapQuery: "HUMAN MADE Fukuoka" },
+  { loc: "路邊(近住處)", brand: "New Balance", detail: "", note: "旗艦店,會有限定款", mapQuery: "New Balance Fukuoka" },
+  { loc: "路邊(近住處)", brand: "Supreme", detail: "", note: "", mapQuery: "Supreme Fukuoka" },
+  { loc: "路邊(近住處)", brand: "Stussy", detail: "", note: "", mapQuery: "Stussy Fukuoka" },
+  { loc: "路邊(近住處)", brand: "BAPE", detail: "", note: "住處對面", mapQuery: "BAPE STORE FUKUOKA" },
+  { loc: "路邊(近住處)", brand: "唐吉訶德", detail: "", note: "", mapQuery: "Don Quijote Fukuoka Tenjin Honten" },
+  { loc: "路邊(近住處)", brand: "大國藥妝", detail: "", note: "", mapQuery: "Daikoku Drug Tenjin Minami" }
+];
+
+// --- Initial Cost Data ---
+// Only keep items that are actual costs, not summaries from CSV
+const initialCosts = {
+  flights: [
+    { type: "去程", airline: "虎航", priceTWD: 4891, actualTWD: 0, isPaid: false },
+    { type: "回程", airline: "長榮", priceTWD: 9746, actualTWD: 0, isPaid: false }
+  ],
+  accommodation: [
+    { day: "Day 1", place: "嬉野八十八", priceYen: 23350, actualTWD: 0, isPaid: false }, // per person yen
+    { day: "Day 2-3", place: "花景色", priceYen: 17250, actualTWD: 0, isPaid: false },
+    { day: "Day 4-5", place: "LAMP LIGHT", priceYen: 24777, actualTWD: 0, isPaid: false }
+  ],
+  transport: [
+    { day: "Day 1&6", item: "機場接送來回(計程車)", priceTWD: 2200, actualTWD: 0, isPaid: false },
+    { day: "Day 1", item: "包車 (10hr)", priceYen: 9167, actualTWD: 0, isPaid: false },
+    { day: "Day 2", item: "包車 (10hr)", priceYen: 9167, actualTWD: 0, isPaid: false },
+    { day: "Day 3", item: "民宿 → 金鱗湖(計程車)", priceYen: 333, actualTWD: 0, isPaid: false },
+    { day: "Day 4", item: "包車 (10hr)", priceYen: 9167, actualTWD: 0, isPaid: false },
+    { day: "Day 5", item: "天神 ⇄ Outlet(巴士)", priceYen: 1540, actualTWD: 0, isPaid: false },
+    { day: "Day 6", item: "天神飯店 → 機場(計程車)", priceYen: 833, actualTWD: 0, isPaid: false }
+  ],
+  food: [
+    { day: "Day 1", type: "午餐", shop: "勝烈亭", priceYen: 2200, actualTWD: 0, isPaid: false },
+    { day: "Day 1", type: "晚餐", shop: "宗庵 よこ長", priceYen: 1080, actualTWD: 0, isPaid: false },
+    { day: "Day 1", type: "晚餐", shop: "Gyumaru", priceYen: 967, actualTWD: 0, isPaid: false },
+    { day: "Day 2", type: "午餐", shop: "千屋鰻魚飯", priceYen: 3980, actualTWD: 0, isPaid: false },
+    { day: "Day 2", type: "晚餐", shop: "拉麵 侍", priceYen: 1500, actualTWD: 0, isPaid: false },
+    { day: "Day 3", type: "早餐", shop: "Cafe La Ruche", priceYen: 1100, actualTWD: 0, isPaid: false },
+    { day: "Day 3", type: "午餐", shop: "各類小店", priceYen: 2000, actualTWD: 0, isPaid: false },
+    { day: "Day 3", type: "晚餐", shop: "由布釜飯 心", priceYen: 2700, actualTWD: 0, isPaid: false },
+    { day: "Day 4", type: "早餐", shop: "B-Speak", priceYen: 270, actualTWD: 0, isPaid: false },
+    { day: "Day 4", type: "早餐", shop: "超商拿鐵", priceYen: 290, actualTWD: 0, isPaid: false },
+    { day: "Day 4", type: "午餐", shop: "牡蠣小屋", priceYen: 2200, actualTWD: 0, isPaid: false },
+    { day: "Day 4", type: "晚餐", shop: "一幸舍*", priceYen: 1650, actualTWD: 0, isPaid: false },
+    { day: "Day 5", type: "早餐", shop: "Sabataro", priceYen: 3150, actualTWD: 0, isPaid: false },
+    { day: "Day 5", type: "早餐", shop: "藍瓶咖啡*", priceYen: 1600, actualTWD: 0, isPaid: false },
+    { day: "Day 5", type: "午餐", shop: "みつせ鶏本舗*", priceYen: 1200, actualTWD: 0, isPaid: false },
+    { day: "Day 5", type: "晚餐", shop: "串燒 八兵衛", priceYen: 3500, actualTWD: 0, isPaid: false },
+    { day: "Day 6", type: "早餐", shop: "Full Full", priceYen: 350, actualTWD: 0, isPaid: false },
+    { day: "Day 6", type: "早餐", shop: "星巴克咖啡*", priceYen: 550, actualTWD: 0, isPaid: false },
+    { day: "Day 6", type: "午餐", shop: "Shin Shin", priceYen: 1000, actualTWD: 0, isPaid: false }
+  ],
+  others: [
+    { day: "Day 1", type: "點心", item: "阿蘇牛奶", priceYen: 230, actualTWD: 0, isPaid: false },
+    { day: "Day 2", type: "門票", item: "九重夢大橋", priceYen: 500, actualTWD: 0, isPaid: false },
+    { day: "Day 3", type: "水果", item: "超市草莓", priceYen: 200, actualTWD: 0, isPaid: false },
+    { day: "Day 4", type: "門票", item: "九州動物園", priceYen: 4100, actualTWD: 0, isPaid: false },
+    { day: "Day 4", type: "點心", item: "鹽之花布丁", priceYen: 550, actualTWD: 0, isPaid: false },
+    { day: "Day 5", type: "點心", item: "草莓大福", priceYen: 346, actualTWD: 0, isPaid: false }
+  ]
+};
+
+const RATE = 0.205;
+
+// --- Helper Components ---
+
+const Header = ({ activeTab, setActiveTab }) => (
+  <div className="bg-amber-500 text-white p-6 pb-4 sticky top-0 z-50 shadow-lg bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]">
+    <div className="flex justify-between items-start mb-2">
+      <div className="w-full">
+        <h1 className="text-3xl font-extrabold tracking-widest text-white text-center drop-shadow-sm mb-1">{tripInfo.title}</h1>
+        
+        <div className="flex justify-center mb-4 mt-2">
+           <div className="bg-white/10 backdrop-blur-sm border border-white/20 px-6 py-1.5 rounded-full shadow-inner flex items-center gap-3">
+             <span className="font-serif italic tracking-widest text-amber-50 font-medium text-sm md:text-base">
+               輕鬆 <Sparkles size={10} className="inline text-yellow-300 mx-1"/> 溫泉 <Sparkles size={10} className="inline text-yellow-300 mx-1"/> 美食
+             </span>
+           </div>
+        </div>
+
+        <div className="flex justify-between items-center px-2">
+          <div className="text-xs font-medium text-amber-100/90 flex items-center gap-1.5 bg-black/10 px-3 py-1 rounded-lg">
+            <Calendar size={13} /> {tripInfo.date}
+          </div>
+          <div className="text-xs font-medium text-amber-100/90 flex items-center gap-3 bg-black/10 px-3 py-1 rounded-lg">
+            <span className="flex items-center gap-1"><Thermometer size={13} /> {tripInfo.weather}</span>
+            <span className="w-[1px] h-3 bg-amber-100/30"></span>
+            <span className="flex items-center gap-1"><Users size={13} /> {tripInfo.people}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div className="flex gap-2 text-sm overflow-x-auto pt-2 pb-1 scrollbar-hide justify-center">
+      {["行程", "住宿", "行李", "購物", "費用"].map(tab => (
+        <button
+          key={tab}
+          onClick={() => setActiveTab(tab)}
+          className={`px-6 py-2 rounded-full whitespace-nowrap transition-all duration-300 ${
+            activeTab === tab 
+              ? "bg-white text-amber-600 font-bold shadow-md translate-y-[-1px]" 
+              : "bg-amber-700/40 text-amber-100 hover:bg-amber-700/60"
+          }`}
+        >
+          {tab}
+        </button>
+      ))}
+    </div>
+  </div>
+);
+
+const ItineraryView = () => {
+  const [activeDay, setActiveDay] = useState(0);
+  const day = itinerary[activeDay];
+
+  const openMap = (query) => {
+    if (!query) return;
+    const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+    window.open(url, '_blank');
+  };
+
+  return (
+    <div className="pb-20">
+      <div className="bg-white border-b border-amber-100 sticky top-[176px] z-40 overflow-x-auto whitespace-nowrap p-3 flex gap-3 shadow-sm justify-start md:justify-center">
+        {itinerary.map((d, index) => (
+          <button
+            key={index}
+            onClick={() => setActiveDay(index)}
+            className={`flex flex-col items-center p-2 min-w-[70px] rounded-xl transition-all duration-200 ${
+              activeDay === index 
+                ? "bg-amber-100 text-amber-800 border-2 border-amber-300 shadow-md transform scale-105" 
+                : "text-gray-400 hover:bg-stone-50 border-2 border-transparent"
+            }`}
+          >
+            <span className="text-xs font-bold">{d.day}</span>
+            <span className="text-[10px] font-medium">{d.date.split(' ')[0]}</span>
+          </button>
+        ))}
+      </div>
+
+      <div className="p-4 animate-fadeIn max-w-2xl mx-auto">
+        <div className="bg-gradient-to-br from-amber-50 via-orange-50 to-white border border-amber-200 p-5 rounded-2xl mb-8 shadow-sm relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-amber-100 rounded-bl-full -mr-10 -mt-10 opacity-50"></div>
+          <h2 className="text-xl font-bold text-amber-900 mb-2 relative z-10">{day.title}</h2>
+          <div className="flex items-start gap-2 text-sm text-stone-600 mb-1 relative z-10">
+            <Car size={16} className="mt-1 text-amber-600 shrink-0" />
+            <span className="font-medium">{day.transport}</span>
+          </div>
+          {day.note && (
+            <div className="flex items-start gap-2 text-sm text-orange-800 mt-3 bg-white/80 backdrop-blur-sm p-3 rounded-lg border border-orange-200 shadow-sm relative z-10">
+              <Info size={16} className="mt-1 shrink-0 text-orange-600" />
+              <span>{day.note}</span>
+            </div>
+          )}
+        </div>
+
+        <div className="space-y-8 relative before:absolute before:left-[19px] before:top-2 before:bottom-0 before:w-[2px] before:bg-stone-200 before:bg-gradient-to-b before:from-amber-300 before:to-stone-200">
+          {day.schedule.map((item, idx) => {
+            const Icon = item.icon;
+            return (
+              <div key={idx} className="relative flex gap-4 group">
+                <div className="z-10 bg-white border-2 border-amber-400 rounded-full w-10 h-10 flex items-center justify-center shrink-0 shadow-md text-amber-600 group-hover:scale-110 transition-transform duration-300">
+                  <Icon size={18} />
+                </div>
+                
+                <div className="flex-1 bg-white rounded-xl shadow-sm border border-stone-100 overflow-hidden hover:shadow-md transition-all duration-300 hover:border-amber-200">
+                  <div className="p-4 pb-2">
+                    <div className="flex justify-between items-start mb-1">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h3 
+                            onClick={() => item.mapQuery && openMap(item.mapQuery)}
+                            className={`font-bold text-stone-800 text-lg leading-tight ${item.mapQuery ? 'cursor-pointer hover:text-amber-600 hover:underline decoration-amber-400 decoration-2 underline-offset-4 transition-all' : ''}`}
+                          >
+                            {item.title}
+                          </h3>
+                          {item.mapQuery && (
+                            <button 
+                              onClick={() => openMap(item.mapQuery)}
+                              className="text-amber-500 hover:text-amber-700 bg-amber-50 hover:bg-amber-100 p-1 rounded-md transition-colors"
+                              title="開啟 Google Maps"
+                            >
+                              <MapPin size={14} />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                      <span className="text-xs font-mono text-amber-700 font-bold bg-amber-50 px-2 py-1 rounded border border-amber-100 whitespace-nowrap ml-2">{item.time}</span>
+                    </div>
+                  </div>
+
+                  {item.desc && (
+                    <div className="bg-stone-50/50 p-4 pt-3 border-t border-stone-100">
+                       <div className="text-sm text-stone-600 w-full space-y-1.5">
+                        {item.desc.split('\n').map((line, i) => {
+                          const trimmed = line.trim();
+                          if (!trimmed) return null;
+                          const isBullet = trimmed.startsWith('●');
+                          return (
+                            <div 
+                              key={i} 
+                              className={`leading-relaxed ${isBullet ? 'pl-3.5 -indent-3.5' : ''}`}
+                            >
+                              {line}
+                            </div>
+                          );
+                        })}
+                       </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const HotelView = () => {
+  const openMap = (query) => {
+    if (!query) return;
+    const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+    window.open(url, '_blank');
+  };
+
+  return (
+    <div className="p-4 pb-20 space-y-4 max-w-2xl mx-auto">
+      {tripInfo.hotels.map((hotel, idx) => (
+        <div key={idx} className="bg-white rounded-xl shadow-sm border border-stone-100 overflow-hidden hover:shadow-md transition-shadow">
+          <div className="bg-stone-100 p-3 flex justify-between items-center border-b border-stone-200">
+            <span className="font-bold text-stone-700">{hotel.day}</span>
+            <span className="text-xs text-amber-800 bg-amber-100 px-3 py-1 rounded-full font-bold shadow-sm">{hotel.date}</span>
+          </div>
+          <div className="p-4">
+            <div className="flex items-center gap-2 mb-2 text-stone-400 text-xs font-bold uppercase tracking-wide">
+              <MapPin size={12} /> {hotel.city}
+            </div>
+            <div className="flex items-center gap-2 mb-2">
+              <h3 
+                onClick={() => hotel.mapQuery && openMap(hotel.mapQuery)}
+                className={`text-lg font-bold text-stone-800 ${hotel.mapQuery ? 'cursor-pointer hover:text-amber-600 hover:underline decoration-amber-400 decoration-2 underline-offset-4' : ''}`}
+              >
+                {hotel.name}
+              </h3>
+              {hotel.mapQuery && (
+                 <button 
+                   onClick={() => openMap(hotel.mapQuery)}
+                   className="text-amber-500 hover:text-amber-700 bg-amber-50 hover:bg-amber-100 p-1.5 rounded-full transition-colors"
+                 >
+                   <MapPin size={14} />
+                 </button>
+              )}
+            </div>
+            
+            <div className="text-sm text-stone-600 flex items-start gap-3 bg-stone-50 p-3 rounded-lg border border-stone-100">
+              <Info size={16} className="mt-0.5 shrink-0 text-amber-500" />
+              <span className="leading-relaxed">{hotel.note}</span>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+const PackingView = () => {
+  const [checkedItems, setCheckedItems] = useState({});
+
+  const toggleItem = (category, item) => {
+    const key = `${category}-${item}`;
+    setCheckedItems(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }));
+  };
+
+  return (
+    <div className="p-4 pb-20 space-y-6 max-w-2xl mx-auto">
+      <div className="bg-gradient-to-r from-orange-100 to-amber-50 p-4 rounded-xl border border-orange-200 text-sm text-orange-900 mb-4 shadow-sm">
+        <h4 className="font-bold flex items-center gap-2 mb-1"><Sun size={16} className="text-orange-500"/> 1月天氣提醒</h4>
+        <p>氣溫 2-10°C，室內暖氣強。建議洋蔥式穿法，防風外套必備！</p>
+      </div>
+
+      {packingList.map((section, idx) => (
+        <div key={idx} className="bg-white rounded-xl shadow-sm border border-stone-100 overflow-hidden">
+          <div className="bg-stone-50 p-3 font-bold text-stone-700 border-b border-stone-200 flex items-center gap-2">
+            <div className="w-1 h-4 bg-amber-400 rounded-full"></div>
+            {section.category}
+          </div>
+          <div className="divide-y divide-stone-100">
+            {section.items.map((item, i) => {
+              const isChecked = checkedItems[`${section.category}-${item}`];
+              return (
+                <div 
+                  key={i} 
+                  onClick={() => toggleItem(section.category, item)}
+                  className={`p-4 flex items-start gap-3 cursor-pointer transition-colors ${isChecked ? 'bg-stone-50' : 'hover:bg-amber-50/50'}`}
+                >
+                  <div className={`mt-0.5 w-5 h-5 rounded border flex items-center justify-center shrink-0 transition-all duration-200 ${isChecked ? 'bg-amber-500 border-amber-500 shadow-sm' : 'border-stone-300 bg-white'}`}>
+                    {isChecked && <CheckSquare size={14} className="text-white" />}
+                  </div>
+                  <span className={`text-sm leading-relaxed ${isChecked ? 'text-stone-400 line-through' : 'text-stone-700'}`}>
+                    {item}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+const ShoppingView = () => {
+  const [activeShopTab, setActiveShopTab] = useState("Day 5 OUTLET");
+  const [checkedShops, setCheckedShops] = useState({});
+
+  const toggleShop = (key) => {
+    setCheckedShops(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }));
+  };
+
+  const openMap = (query) => {
+    if (!query) return;
+    const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+    window.open(url, '_blank');
+  };
+
+  return (
+    <div className="pb-20">
+      <div className="sticky top-[176px] z-40 bg-white border-b border-amber-100 p-3 flex justify-center gap-2 shadow-sm">
+         {["Day 5 OUTLET", "Day 6 天神"].map(tab => (
+           <button
+             key={tab}
+             onClick={() => setActiveShopTab(tab)}
+             className={`px-4 py-1.5 rounded-full text-sm font-bold transition-all ${
+               activeShopTab === tab 
+               ? "bg-amber-100 text-amber-800 border border-amber-300" 
+               : "text-gray-500 bg-gray-50 border border-transparent"
+             }`}
+           >
+             {tab}
+           </button>
+         ))}
+      </div>
+
+      <div className="p-4 animate-fadeIn max-w-2xl mx-auto">
+        {activeShopTab === "Day 5 OUTLET" ? (
+          <div className="bg-white rounded-xl shadow-sm border border-stone-100 overflow-hidden">
+            <div className="bg-stone-50 p-3 font-bold text-stone-700 border-b border-stone-200 flex items-center justify-between">
+              <span>鳥栖 OUTLETS</span>
+              <span className="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded">List</span>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm text-left">
+                <thead className="text-xs text-stone-500 uppercase bg-stone-50 border-b border-stone-100">
+                  <tr>
+                    <th className="w-10 px-4 py-3"></th>
+                    <th className="px-4 py-3 font-bold">品牌</th>
+                    <th className="px-4 py-3">店鋪</th>
+                    <th className="px-4 py-3 text-center">退稅</th>
+                    <th className="px-4 py-3 text-center">地圖</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-stone-100">
+                  {outletData.map((item, idx) => {
+                    const isChecked = checkedShops[`outlet-${idx}`];
+                    return (
+                      <tr 
+                        key={idx} 
+                        onClick={() => toggleShop(`outlet-${idx}`)}
+                        className={`transition-colors cursor-pointer ${isChecked ? 'bg-amber-50/60' : 'hover:bg-stone-50/50'}`}
+                      >
+                        <td className="px-4 py-3 text-center">
+                          {isChecked 
+                            ? <CheckCircle2 size={18} className="text-amber-500 mx-auto" />
+                            : <Circle size={18} className="text-stone-300 mx-auto" />
+                          }
+                        </td>
+                        <td className="px-4 py-3 font-medium text-stone-800">
+                          <div className="flex items-center gap-2">
+                            <span 
+                              className="hover:text-amber-600 hover:underline decoration-amber-400 decoration-2 underline-offset-4 cursor-pointer"
+                              onClick={(e) => { e.stopPropagation(); openMap(item.mapQuery); }}
+                            >
+                              {item.brand}
+                            </span>
+                            {item.isFood && (
+                              <span className="inline-flex items-center gap-1 bg-orange-100 text-orange-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-orange-200">
+                                <Utensils size={10} /> Food
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 font-mono text-amber-600">{item.shopNo}</td>
+                        <td className="px-4 py-3 text-center">
+                          {item.refund === "V" && <CheckSquare size={14} className="inline text-green-500" />}
+                        </td>
+                        <td className="px-4 py-3 text-center">
+                          {item.mapQuery && (
+                            <button 
+                              onClick={(e) => { e.stopPropagation(); openMap(item.mapQuery); }}
+                              className="text-amber-500 hover:text-amber-700 bg-amber-50 hover:bg-amber-100 p-1.5 rounded-full transition-colors"
+                            >
+                              <MapPin size={14} />
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-4">
+             {tenjinData.map((item, idx) => {
+               const isChecked = checkedShops[`tenjin-${idx}`];
+               return (
+                 <div 
+                   key={idx} 
+                   onClick={() => toggleShop(`tenjin-${idx}`)}
+                   className={`bg-white rounded-xl shadow-sm border p-4 flex gap-3 cursor-pointer transition-all ${
+                     isChecked 
+                       ? 'bg-amber-50/40 border-amber-200 ring-1 ring-amber-100' 
+                       : 'border-stone-100 hover:shadow-md'
+                   }`}
+                 >
+                   <div className="flex flex-col items-center gap-2 min-w-[50px] pt-1">
+                      {isChecked 
+                        ? <CheckCircle2 size={20} className="text-amber-500" />
+                        : <Circle size={20} className="text-stone-300" />
+                      }
+                      <span className="text-[10px] font-bold text-stone-400 text-center leading-tight bg-stone-100 px-1 py-0.5 rounded w-full mt-1">{item.loc}</span>
+                   </div>
+                   <div className="flex-1">
+                      <div className="flex justify-between items-start">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h3 
+                            onClick={(e) => { e.stopPropagation(); openMap(item.mapQuery); }}
+                            className="font-bold text-stone-800 text-lg hover:text-amber-600 hover:underline decoration-amber-400 decoration-2 underline-offset-4 cursor-pointer"
+                          >
+                            {item.brand}
+                          </h3>
+                          {item.mapQuery && (
+                            <button 
+                              onClick={(e) => { e.stopPropagation(); openMap(item.mapQuery); }}
+                              className="text-amber-500 hover:text-amber-700 bg-amber-50 hover:bg-amber-100 p-1 rounded-md transition-colors"
+                            >
+                              <MapPin size={14} />
+                            </button>
+                          )}
+                          {item.isFood && (
+                            <span className="inline-flex items-center gap-1 bg-orange-100 text-orange-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-orange-200">
+                              <Utensils size={10} /> Food
+                            </span>
+                          )}
+                        </div>
+                        {item.detail && <span className="text-xs font-mono font-bold bg-amber-50 text-amber-700 px-2 py-1 rounded whitespace-nowrap ml-2">{item.detail}</span>}
+                      </div>
+                      {item.note && (
+                        <p className="text-sm text-stone-500 mt-1 flex items-start gap-1.5">
+                          <Tag size={12} className="mt-1 shrink-0 opacity-70" />
+                          {item.note}
+                        </p>
+                      )}
+                   </div>
+                 </div>
+               );
+             })}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const CostView = () => {
+  const [costs, setCosts] = useState(initialCosts);
+  const [editingItem, setEditingItem] = useState(null); // { category, index, field }
+  const [editValue, setEditValue] = useState("");
+
+  const handleEditStart = (category, index, field, value) => {
+    setEditingItem({ category, index, field });
+    setEditValue(value);
+  };
+
+  const handleEditSave = () => {
+    if (!editingItem) return;
+    const { category, index, field } = editingItem;
+    const newValue = parseInt(editValue, 10) || 0;
+
+    setCosts(prev => {
+      const newList = [...prev[category]];
+      newList[index] = { ...newList[index], [field]: newValue };
+      return { ...prev, [category]: newList };
+    });
+    setEditingItem(null);
+  };
+
+  const togglePaid = (category, index) => {
+    setCosts(prev => {
+      const newList = [...prev[category]];
+      newList[index] = { ...newList[index], isPaid: !newList[index].isPaid };
+      return { ...prev, [category]: newList };
+    });
+  };
+
+  // Calculations
+  // Logic: If isPaid is true, use actualTWD (if set) OR estimated cost converted to TWD. If actualTWD is 0, assume estimated cost is the paid amount.
+  // Wait, let's simplify:
+  // Total Estimated = sum of all estimated costs (converted to TWD)
+  // Paid Amount = sum of (actualTWD if set > 0 else estimated_in_TWD) for items where isPaid is true.
+
+  const getEstimatedTWD = (item, type) => {
+     if (item.priceTWD) return item.priceTWD;
+     if (item.priceYen) return Math.round(item.priceYen * RATE);
+     return 0;
+  };
+
+  const calculateEstimatedTotal = () => {
+    if (!costs) return 0; // Guard
+    let total = 0;
+    // Flights (TWD)
+    total += costs.flights.reduce((acc, item) => acc + item.priceTWD, 0);
+    // Accom (Yen -> TWD)
+    total += costs.accommodation.reduce((acc, item) => acc + Math.round(item.priceYen * RATE), 0);
+    // Transport (TWD/Yen -> TWD)
+    total += costs.transport.reduce((acc, item) => acc + (item.priceTWD || Math.round(item.priceYen * RATE)), 0);
+    // Food (Yen -> TWD)
+    total += costs.food.reduce((acc, item) => acc + Math.round(item.priceYen * RATE), 0);
+    // Others (Yen -> TWD)
+    total += costs.others.reduce((acc, item) => acc + Math.round(item.priceYen * RATE), 0);
+    return Math.round(total);
+  };
+
+  const calculatePaidTotal = () => {
+    if (!costs) return 0; // Guard
+    let total = 0;
+    const categories = ['flights', 'accommodation', 'transport', 'food', 'others'];
+    
+    categories.forEach(cat => {
+      costs[cat].forEach(item => {
+        if (item.isPaid) {
+          if (item.actualTWD > 0) {
+            total += item.actualTWD;
+          } else {
+             // Use estimated
+             total += getEstimatedTWD(item);
+          }
+        }
+      });
+    });
+    return Math.round(total);
+  };
+
+  const totalEstimated = calculateEstimatedTotal();
+  const totalPaid = calculatePaidTotal();
+
+
+  const renderSection = (title, icon, category, priceField, currency = "NT$") => (
+    <div className="bg-white rounded-xl shadow-sm border border-stone-100 overflow-hidden mb-4">
+      <div className="bg-stone-50 p-3 font-bold text-stone-700 border-b border-stone-200 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          {icon} {title}
+        </div>
+        <span className="text-xs font-normal text-stone-500">
+           (每人, 匯率 {RATE})
+        </span>
+      </div>
+      <div className="divide-y divide-stone-100">
+        {costs[category].map((item, idx) => {
+           const estimatedVal = item[priceField];
+           // Guard against undefined values causing toLocaleString crash
+           const safeEstimatedVal = estimatedVal !== undefined ? estimatedVal : 0;
+           // Round to integer for display
+           const roundedVal = Math.round(safeEstimatedVal);
+           
+           const estimatedDisplay = currency === "¥" ? `¥ ${roundedVal.toLocaleString()}` : `NT$ ${roundedVal.toLocaleString()}`;
+           const estimatedInTWD = getEstimatedTWD(item);
+           
+           return (
+          <div key={idx} className={`p-4 transition-colors ${item.isPaid ? 'bg-green-50/50' : ''}`}>
+            <div className="flex items-center justify-between mb-2">
+               <div className="flex items-center gap-3">
+                  <button 
+                    onClick={() => togglePaid(category, idx)}
+                    className={`w-6 h-6 rounded-full border flex items-center justify-center transition-colors ${item.isPaid ? 'bg-green-500 border-green-500 text-white' : 'border-stone-300 text-transparent hover:border-green-400'}`}
+                  >
+                    <Check size={14} />
+                  </button>
+                  <div className="flex flex-col">
+                    <span className="font-medium text-stone-800">{item.type || item.day} {item.airline || item.place || item.route || item.shop || item.item}</span>
+                    {item.note && <span className="text-xs text-stone-500">{item.note}</span>}
+                    {item.tool && <span className="text-xs text-stone-500">{item.tool}</span>}
+                  </div>
+               </div>
+               <div className="text-right">
+                  <div className="text-xs text-stone-400">預估</div>
+                  <div className="font-mono font-bold text-stone-700">{estimatedDisplay}</div>
+               </div>
+            </div>
+            
+            {/* Actual Cost Input Area */}
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-dashed border-stone-100">
+               <span className="text-xs text-stone-500">實際支出 (NT$) :</span>
+               {editingItem?.category === category && editingItem?.index === idx ? (
+                <input 
+                  autoFocus
+                  type="number"
+                  className="w-24 p-1 text-right border border-amber-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-amber-200"
+                  value={editValue}
+                  onChange={(e) => setEditValue(e.target.value)}
+                  onBlur={handleEditSave}
+                  onKeyDown={(e) => e.key === 'Enter' && handleEditSave()}
+                />
+              ) : (
+                <div 
+                  onClick={() => handleEditStart(category, idx, 'actualTWD', item.actualTWD)}
+                  className={`font-mono font-bold text-sm cursor-pointer px-2 py-0.5 rounded border border-transparent hover:border-stone-200 flex items-center gap-1 ${item.actualTWD > 0 ? 'text-green-600 bg-green-50' : 'text-stone-400 bg-stone-50'}`}
+                >
+                  {item.actualTWD > 0 ? `NT$ ${Math.round(item.actualTWD).toLocaleString()}` : (item.isPaid ? `(預設: ${Math.round(estimatedInTWD)})` : '輸入金額')}
+                  <Edit2 size={10} />
+                </div>
+              )}
+            </div>
+          </div>
+        )})}
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="p-4 pb-20 space-y-6">
+      {/* Summary Card */}
+      <div className="bg-gradient-to-br from-amber-50 to-orange-50 p-6 rounded-2xl border border-amber-200 shadow-sm sticky top-[230px] z-30">
+        <div className="flex justify-between items-start mb-4">
+          <div>
+            <h3 className="text-stone-500 text-xs font-bold uppercase tracking-wider mb-1">總預估每人費用</h3>
+            <div className="text-2xl font-black text-stone-800 flex items-baseline gap-1">
+              <span className="text-sm text-stone-500">NT$</span>
+              {Math.round(totalEstimated).toLocaleString()}
+            </div>
+          </div>
+          <div className="text-right">
+            <h3 className="text-green-600 text-xs font-bold uppercase tracking-wider mb-1">目前已支出</h3>
+            <div className="text-2xl font-black text-green-600 flex items-baseline gap-1 justify-end">
+               <span className="text-sm text-green-500">NT$</span>
+               {Math.round(totalPaid).toLocaleString()}
+            </div>
+          </div>
+        </div>
+        <div className="w-full bg-stone-200 rounded-full h-2 overflow-hidden">
+          <div 
+            className="bg-green-500 h-2 rounded-full transition-all duration-500" 
+            style={{ width: `${totalEstimated > 0 ? Math.min((totalPaid / totalEstimated) * 100, 100) : 0}%` }}
+          ></div>
+        </div>
+        <div className="flex justify-between mt-2">
+             <div className="text-[10px] text-amber-700/60 flex items-center gap-1">
+                <Calculator size={10}/> 匯率以 0.205 計算
+             </div>
+             <div className="text-xs text-stone-500">
+                完成度 {totalEstimated > 0 ? Math.round((totalPaid / totalEstimated) * 100) : 0}%
+             </div>
+        </div>
+      </div>
+
+      <div className="space-y-6">
+        <h3 className="font-bold text-lg text-stone-800 flex items-center gap-2 border-l-4 border-blue-500 pl-3">
+          共同開銷 <span className="text-sm font-normal text-stone-500">(機票、住宿、交通)</span>
+        </h3>
+        {renderSection("機票", <Plane size={18} className="text-blue-500" />, "flights", "priceTWD", "NT$")}
+        {renderSection("住宿", <BedDouble size={18} className="text-indigo-500" />, "accommodation", "priceYen", "¥")}
+        {renderSection("交通", <Bus size={18} className="text-green-600" />, "transport", "priceYen", "¥")}
+      </div>
+
+      <div className="space-y-6">
+        <h3 className="font-bold text-lg text-stone-800 flex items-center gap-2 border-l-4 border-orange-500 pl-3">
+          個人開銷 <span className="text-sm font-normal text-stone-500">(餐飲、其他)</span>
+        </h3>
+        {renderSection("餐飲", <Utensils size={18} className="text-orange-500" />, "food", "priceYen", "¥")}
+        {renderSection("其他", <Receipt size={18} className="text-purple-500" />, "others", "priceYen", "¥")}
+      </div>
+    </div>
+  );
+};
+
+const App = () => {
+  const [activeTab, setActiveTab] = useState("行程");
+
+  return (
+    <div className="max-w-md mx-auto bg-stone-50 min-h-screen font-sans text-stone-900 shadow-2xl overflow-hidden relative">
+      <Header activeTab={activeTab} setActiveTab={setActiveTab} />
+      
+      <div className="min-h-[calc(100vh-180px)]">
+        {activeTab === "行程" && <ItineraryView />}
+        {activeTab === "住宿" && <HotelView />}
+        {activeTab === "行李" && <PackingView />}
+        {activeTab === "購物" && <ShoppingView />}
+        {activeTab === "費用" && <CostView />}
+      </div>
+    </div>
+  );
+};
+
+export default App;
